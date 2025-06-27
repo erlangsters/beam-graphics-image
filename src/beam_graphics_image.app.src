@@ -1,5 +1,5 @@
 {application, beam_graphics_image, [
-    {description, "An OTP library"},
+    {description, "Image loader/saver for the BEAM graphics library."},
     {vsn, "0.1.0"},
     {registered, []},
     {applications, [
