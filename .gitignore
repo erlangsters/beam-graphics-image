@@ -1,7 +1,9 @@
 .rebar3
 _build
+_build_cmake
 _checkouts
 _vendor
+priv
 .eunit
 *.o
 *.beam

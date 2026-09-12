@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get install -y libegl-dev libgles-dev
+      - run: sudo apt-get update && sudo apt-get install -y cmake libegl-dev libgles-dev
       - uses: erlangsters/setup-erlang@v1
         with:
           erlang-version: 28
           install-rebar3: true
-      - run: rebar3 compile
+      - run: rebar3 eunit

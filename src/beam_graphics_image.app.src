@@ -4,10 +4,17 @@
     {registered, []},
     {applications, [
         kernel,
-        stdlib
+        stdlib,
+        beam_graphics
     ]},
     {env, []},
-    {modules, []},
+    {modules, [
+        beam_graphics_image,
+        image_nif,
+        image_png,
+        image_jpeg,
+        image_bmp
+    ]},
     {licenses, ["MIT"]},
     {links, []}
  ]}.

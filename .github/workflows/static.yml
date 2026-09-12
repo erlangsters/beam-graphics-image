@@ -30,7 +30,7 @@ jobs:
       image: erlang:latest
     steps:
       - uses: actions/checkout@v4
-      - run: apt-get update && apt-get install -y libegl-dev libgles-dev
+      - run: apt-get update && apt-get install -y cmake libegl-dev libgles-dev
       - run: rebar3 as docs ex_doc
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
