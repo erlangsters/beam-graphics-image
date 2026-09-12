@@ -7,7 +7,7 @@
 %%
 %% Written by Jonathan De Wachter <jonathan.dewachter@byteplug.io>
 %%
--module(image_nif).
+-module(graphics_image_nif).
 -moduledoc false.
 
 -on_load(init/0).
@@ -68,8 +68,8 @@ rgba_from_image({Width, Height, Pixels})
 pixels_from_rgba(<<>>, Acc) ->
     lists:reverse(Acc);
 pixels_from_rgba(<<Red, Green, Blue, Alpha, Rest/binary>>, Acc) ->
-    pixels_from_rgba(Rest, [color:from_bytes(Red, Green, Blue, Alpha) | Acc]).
+    pixels_from_rgba(Rest, [graphics_color:from_bytes(Red, Green, Blue, Alpha) | Acc]).
 
 rgba_pixel(Color) ->
-    {Red, Green, Blue, Alpha} = color:to_bytes(Color),
+    {Red, Green, Blue, Alpha} = graphics_color:to_bytes(Color),
     <<Red, Green, Blue, Alpha>>.

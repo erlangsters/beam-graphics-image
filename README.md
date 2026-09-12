@@ -15,16 +15,16 @@ of the BEAM ecosystem and load images into ready-to-use textures.
 
 It decodes and encodes PNG, JPEG, and BMP as a `graphics:image()`. It does not
 draw and it does not create a GPU texture. Upload pixels with
-`texture:with_image/1`.
+`graphics_texture:with_image/1`.
 
 ```erlang
-{ok, Image} = image_png:load("sprite.png"),
-{ok, Texture} = texture:with_image(Image).
+{ok, Image} = graphics_image_png:load("sprite.png"),
+{ok, Texture} = graphics_texture:with_image(Image).
 ```
 
 ```erlang
-Image = surface:image(Surface),
-ok = image_png:save(Image, "screenshot.png").
+Image = graphics_surface:image(Surface),
+ok = graphics_image_png:save(Image, "screenshot.png").
 ```
 
 `decode/1` and `encode/1` work on binaries. `load/1` and `save/2` are file
@@ -32,9 +32,9 @@ wrappers. `save/2` takes the image first, then the path.
 
 Supported formats:
 
-- PNG (`image_png`)
-- JPEG (`image_jpeg`), quality 90, no alpha
-- BMP (`image_bmp`), 24-bit on encode, no alpha
+- PNG (`graphics_image_png`)
+- JPEG (`graphics_image_jpeg`), quality 90, no alpha
+- BMP (`graphics_image_bmp`), 24-bit on encode, no alpha
 
 Pixels are row-major RGBA colors. X varies fastest, then Y. `(0, 0)` is the
 first pixel. The codec does not Y-flip. Gray, RGB, and palette sources expand
@@ -65,12 +65,11 @@ avoid breaking your project if incompatible changes are made.
 
 These stay out of the current slice:
 
-- a sniffer `image:load/1` that dispatches on magic bytes
+- a sniffer `graphics_image:load/1` that dispatches on magic bytes
 - `load_texture` / `with_texture` (needs a live graphics context)
 - GIF, WebP, HDR, TIFF, and animation
 - a Y-flip option (the texture API does not flip)
-- color space on the image (belongs on `texture`)
+- color space on the image (belongs on `graphics_texture`)
 - JPEG quality arity and PNG filter or compression options
 - 16-bit and float images
-- the `graphics_` module prefix (cross-library rename)
-- a GPU-backed `decode → texture:with_image → remote_image` test
+- a GPU-backed `decode → graphics_texture:with_image → remote_image` test

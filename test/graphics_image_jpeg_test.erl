@@ -7,7 +7,7 @@
 %%
 %% Written by Jonathan De Wachter <jonathan.dewachter@byteplug.io>
 %%
--module(image_jpeg_test).
+-module(graphics_image_jpeg_test).
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("beam_graphics/include/graphics.hrl").
 
@@ -19,22 +19,22 @@
 
 image_jpeg_roundtrip_test() ->
     Solid = {4, 4, lists:duplicate(16, ?COLOR_RED)},
-    Binary = image_jpeg:encode(Solid),
+    Binary = graphics_image_jpeg:encode(Solid),
     <<16#FF, 16#D8, 16#FF, _/binary>> = Binary,
-    {ok, {4, 4, Pixels}} = image_jpeg:decode(Binary),
+    {ok, {4, 4, Pixels}} = graphics_image_jpeg:decode(Binary),
     16 = length(Pixels),
     lists:foreach(
         fun(Color) ->
-            true = color:is_equal_to(Color, ?COLOR_RED, ?JPEG_EPS),
-            1.0 = color:alpha(Color)
+            true = graphics_color:is_equal_to(Color, ?COLOR_RED, ?JPEG_EPS),
+            1.0 = graphics_color:alpha(Color)
         end,
         Pixels
     ),
     ok.
 
 image_jpeg_mixed_roundtrip_test() ->
-    Binary = image_jpeg:encode(?IMAGE),
-    {ok, {2, 2, Pixels}} = image_jpeg:decode(Binary),
+    Binary = graphics_image_jpeg:encode(?IMAGE),
+    {ok, {2, 2, Pixels}} = graphics_image_jpeg:decode(Binary),
     4 = length(Pixels),
     lists:foreach(
         fun({R, G, B, A}) ->
@@ -50,30 +50,30 @@ image_jpeg_mixed_roundtrip_test() ->
 image_jpeg_load_save_test() ->
     Path = tmp_path(".jpeg"),
     Solid = {4, 4, lists:duplicate(16, ?COLOR_RED)},
-    ok = image_jpeg:save(Solid, Path),
-    {ok, {4, 4, Pixels}} = image_jpeg:load(Path),
+    ok = graphics_image_jpeg:save(Solid, Path),
+    {ok, {4, 4, Pixels}} = graphics_image_jpeg:load(Path),
     16 = length(Pixels),
     ok = file:delete(Path),
     ok.
 
 image_jpeg_unsupported_format_test() ->
-    {error, unsupported_format} = image_jpeg:decode(<<"not a jpeg">>),
-    Png = image_png:encode(?IMAGE),
-    {error, unsupported_format} = image_jpeg:decode(Png),
+    {error, unsupported_format} = graphics_image_jpeg:decode(<<"not a jpeg">>),
+    Png = graphics_image_png:encode(?IMAGE),
+    {error, unsupported_format} = graphics_image_jpeg:decode(Png),
     ok.
 
 image_jpeg_decode_failed_test() ->
-    {error, decode_failed} = image_jpeg:decode(<<16#FF, 16#D8, 16#FF, 0, 1, 2>>),
+    {error, decode_failed} = graphics_image_jpeg:decode(<<16#FF, 16#D8, 16#FF, 0, 1, 2>>),
     ok.
 
 image_jpeg_missing_file_test() ->
-    {error, enoent} = image_jpeg:load("beam-graphics-image-missing-jpeg-test.jpeg"),
+    {error, enoent} = graphics_image_jpeg:load("beam-graphics-image-missing-jpeg-test.jpeg"),
     ok.
 
 image_jpeg_badarg_test() ->
-    ?assertError(function_clause, image_jpeg:encode(not_an_image)),
-    ?assertError(function_clause, image_jpeg:decode(not_a_binary)),
-    ?assertError(function_clause, image_jpeg:load(123)),
+    ?assertError(function_clause, graphics_image_jpeg:encode(not_an_image)),
+    ?assertError(function_clause, graphics_image_jpeg:decode(not_a_binary)),
+    ?assertError(function_clause, graphics_image_jpeg:load(123)),
     ok.
 
 tmp_path(Ext) ->

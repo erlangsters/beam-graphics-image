@@ -7,7 +7,7 @@
 %%
 %% Written by Jonathan De Wachter <jonathan.dewachter@byteplug.io>
 %%
--module(image_png_test).
+-module(graphics_image_png_test).
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("beam_graphics/include/graphics.hrl").
 
@@ -17,64 +17,64 @@
 ]}).
 
 image_png_roundtrip_test() ->
-    Binary = image_png:encode(?IMAGE),
+    Binary = graphics_image_png:encode(?IMAGE),
     <<137, 80, 78, 71, 13, 10, 26, 10, _/binary>> = Binary,
-    {ok, Decoded} = image_png:decode(Binary),
+    {ok, Decoded} = graphics_image_png:decode(Binary),
     true = image_equal(Decoded, ?IMAGE),
     ok.
 
 image_png_transparent_test() ->
     Image = {1, 1, [?COLOR_TRANSPARENT]},
-    {ok, Decoded} = image_png:decode(image_png:encode(Image)),
+    {ok, Decoded} = graphics_image_png:decode(graphics_image_png:encode(Image)),
     true = image_equal(Decoded, Image),
     ok.
 
 image_png_gray_fixture_test() ->
     Binary = raw_png(1, 1, 0, <<128>>),
-    {ok, {1, 1, [Color]}} = image_png:decode(Binary),
-    Expected = color:from_bytes(128, 128, 128, 255),
-    true = color:is_equal_to(Color, Expected),
+    {ok, {1, 1, [Color]}} = graphics_image_png:decode(Binary),
+    Expected = graphics_color:from_bytes(128, 128, 128, 255),
+    true = graphics_color:is_equal_to(Color, Expected),
     ok.
 
 image_png_rgb_fixture_test() ->
     Binary = raw_png(1, 1, 2, <<255, 0, 0>>),
-    {ok, {1, 1, [Color]}} = image_png:decode(Binary),
-    true = color:is_equal_to(Color, ?COLOR_RED),
+    {ok, {1, 1, [Color]}} = graphics_image_png:decode(Binary),
+    true = graphics_color:is_equal_to(Color, ?COLOR_RED),
     ok.
 
 image_png_load_save_test() ->
     Path = tmp_path(".png"),
-    ok = image_png:save(?IMAGE, Path),
-    {ok, Decoded} = image_png:load(Path),
+    ok = graphics_image_png:save(?IMAGE, Path),
+    {ok, Decoded} = graphics_image_png:load(Path),
     true = image_equal(Decoded, ?IMAGE),
     ok = file:delete(Path),
     ok.
 
 image_png_unsupported_format_test() ->
-    {error, unsupported_format} = image_png:decode(<<"not a png">>),
-    Jpeg = image_jpeg:encode(?IMAGE),
-    {error, unsupported_format} = image_png:decode(Jpeg),
+    {error, unsupported_format} = graphics_image_png:decode(<<"not a png">>),
+    Jpeg = graphics_image_jpeg:encode(?IMAGE),
+    {error, unsupported_format} = graphics_image_png:decode(Jpeg),
     ok.
 
 image_png_decode_failed_test() ->
-    {error, decode_failed} = image_png:decode(<<137, 80, 78, 71, 13, 10, 26, 10, 0, 1, 2>>),
+    {error, decode_failed} = graphics_image_png:decode(<<137, 80, 78, 71, 13, 10, 26, 10, 0, 1, 2>>),
     ok.
 
 image_png_missing_file_test() ->
-    {error, enoent} = image_png:load("beam-graphics-image-missing-png-test.png"),
+    {error, enoent} = graphics_image_png:load("beam-graphics-image-missing-png-test.png"),
     ok.
 
 image_png_badarg_test() ->
-    ?assertError(function_clause, image_png:encode(not_an_image)),
-    ?assertError(function_clause, image_png:encode({0, 1, [?COLOR_RED]})),
-    ?assertError(function_clause, image_png:encode({1, 1, []})),
-    ?assertError(function_clause, image_png:decode(not_a_binary)),
-    ?assertError(function_clause, image_png:load(123)),
+    ?assertError(function_clause, graphics_image_png:encode(not_an_image)),
+    ?assertError(function_clause, graphics_image_png:encode({0, 1, [?COLOR_RED]})),
+    ?assertError(function_clause, graphics_image_png:encode({1, 1, []})),
+    ?assertError(function_clause, graphics_image_png:decode(not_a_binary)),
+    ?assertError(function_clause, graphics_image_png:load(123)),
     ok.
 
 image_equal({Width, Height, Left}, {Width, Height, Right}) ->
     lists:all(
-        fun({A, B}) -> color:is_equal_to(A, B) end,
+        fun({A, B}) -> graphics_color:is_equal_to(A, B) end,
         lists:zip(Left, Right)
     ).
 

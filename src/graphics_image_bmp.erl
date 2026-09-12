@@ -7,21 +7,21 @@
 %%
 %% Written by Jonathan De Wachter <jonathan.dewachter@byteplug.io>
 %%
--module(image_bmp).
+-module(graphics_image_bmp).
 -moduledoc """
 BMP image codec.
 
 It decodes and encodes BMP files as a `graphics:image()`: a width, a height,
 and a row-major list of RGBA colors. It does not create a texture. Upload
-decoded pixels with `texture:with_image/1`.
+decoded pixels with `graphics_texture:with_image/1`.
 
 ```erlang
-{ok, Image} = image_bmp:load("sprite.bmp"),
-{ok, Texture} = texture:with_image(Image).
+{ok, Image} = graphics_image_bmp:load("sprite.bmp"),
+{ok, Texture} = graphics_texture:with_image(Image).
 ```
 
 ```erlang
-ok = image_bmp:save(Image, "screenshot.bmp").
+ok = graphics_image_bmp:save(Image, "screenshot.bmp").
 ```
 
 Pixels are row-major. X varies fastest, then Y. Slice index `(0, 0)` is the
@@ -66,8 +66,8 @@ The image must be a well-formed `graphics:image()`. Alpha is dropped.
 """.
 -spec encode(graphics:image()) -> binary().
 encode(Image) ->
-    {Width, Height, Rgba} = image_nif:rgba_from_image(Image),
-    case image_nif:encode_bmp_raw(Width, Height, Rgba) of
+    {Width, Height, Rgba} = graphics_image_nif:rgba_from_image(Image),
+    case graphics_image_nif:encode_bmp_raw(Width, Height, Rgba) of
         {ok, Binary} ->
             Binary;
         {error, out_of_memory} ->
@@ -101,9 +101,9 @@ save(Image, Filename) when is_list(Filename); is_binary(Filename); is_atom(Filen
     file:write_file(Filename, encode(Image)).
 
 decode_image(Binary) ->
-    case image_nif:decode_raw(Binary) of
+    case graphics_image_nif:decode_raw(Binary) of
         {ok, {Width, Height, Rgba}} ->
-            {ok, image_nif:image_from_rgba(Width, Height, Rgba)};
+            {ok, graphics_image_nif:image_from_rgba(Width, Height, Rgba)};
         {error, Reason} ->
             {error, Reason}
     end.

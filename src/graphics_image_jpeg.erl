@@ -7,35 +7,36 @@
 %%
 %% Written by Jonathan De Wachter <jonathan.dewachter@byteplug.io>
 %%
--module(image_png).
+-module(graphics_image_jpeg).
 -moduledoc """
-PNG image codec.
+JPEG image codec.
 
-It decodes and encodes PNG files as a `graphics:image()`: a width, a height,
+It decodes and encodes JPEG files as a `graphics:image()`: a width, a height,
 and a row-major list of RGBA colors. It does not create a texture. Upload
-decoded pixels with `texture:with_image/1`.
+decoded pixels with `graphics_texture:with_image/1`.
 
 ```erlang
-{ok, Image} = image_png:load("sprite.png"),
-{ok, Texture} = texture:with_image(Image).
+{ok, Image} = graphics_image_jpeg:load("sprite.jpeg"),
+{ok, Texture} = graphics_texture:with_image(Image).
 ```
 
 ```erlang
-ok = image_png:save(Image, "screenshot.png").
+ok = graphics_image_jpeg:save(Image, "screenshot.jpeg").
 ```
 
 Pixels are row-major. X varies fastest, then Y. Slice index `(0, 0)` is the
-first pixel and UV `(0, 0)`. The codec does not Y-flip. Gray, RGB, and
-palette PNGs are expanded to RGBA with alpha `1.0` when the file has no
-alpha.
+first pixel and UV `(0, 0)`. The codec does not Y-flip. JPEG has no alpha;
+decoded pixels use alpha `1.0`. `encode/1` writes quality 90 and drops alpha.
 
 `decode/1` and `encode/1` work on binaries. `load/1` and `save/2` are file
 wrappers. `save/2` takes the image first, then the path.
 
-A binary that is not a PNG is `{error, unsupported_format}`. A PNG that
+A binary that is not a JPEG is `{error, unsupported_format}`. A JPEG that
 cannot be decoded is `{error, decode_failed}`. Missing files and other I/O
 failures are `{error, Reason}` from `file`. A well-formed image always
 encodes to a binary. Native writer failure raises `out_of_memory`.
+
+JPEG is lossy. Named colors do not round-trip exactly.
 
 Beware that a well-formed image uses floats for color channels, not integers.
 """.
@@ -47,28 +48,31 @@ Beware that a well-formed image uses floats for color channels, not integers.
     save/2
 ]).
 
--doc """
-Decode a PNG binary.
+-define(DEFAULT_QUALITY, 90).
 
-It returns a `graphics:image()` when the binary is a PNG. A different
+-doc """
+Decode a JPEG binary.
+
+It returns a `graphics:image()` when the binary is a JPEG. A different
 container is `{error, unsupported_format}`.
 """.
 -spec decode(binary()) ->
     {ok, graphics:image()} | {error, unsupported_format | decode_failed | out_of_memory}.
-decode(<<137, 80, 78, 71, 13, 10, 26, 10, _/binary>> = Binary) ->
+decode(<<16#FF, 16#D8, 16#FF, _/binary>> = Binary) ->
     decode_image(Binary);
 decode(Binary) when is_binary(Binary) ->
     {error, unsupported_format}.
 
 -doc """
-Encode an image as a PNG binary.
+Encode an image as a JPEG binary.
 
-The image must be a well-formed `graphics:image()`.
+The image must be a well-formed `graphics:image()`. Quality is 90. Alpha is
+dropped.
 """.
 -spec encode(graphics:image()) -> binary().
 encode(Image) ->
-    {Width, Height, Rgba} = image_nif:rgba_from_image(Image),
-    case image_nif:encode_png_raw(Width, Height, Rgba) of
+    {Width, Height, Rgba} = graphics_image_nif:rgba_from_image(Image),
+    case graphics_image_nif:encode_jpeg_raw(Width, Height, Rgba, ?DEFAULT_QUALITY) of
         {ok, Binary} ->
             Binary;
         {error, out_of_memory} ->
@@ -76,7 +80,7 @@ encode(Image) ->
     end.
 
 -doc """
-Load a PNG file.
+Load a JPEG file.
 
 It reads the file and decodes it as a `graphics:image()`.
 """.
@@ -92,7 +96,7 @@ load(Filename) when is_list(Filename); is_binary(Filename); is_atom(Filename) ->
     end.
 
 -doc """
-Save an image as a PNG file.
+Save an image as a JPEG file.
 
 It's equivalent to writing `encode(Image)` to `Filename`.
 """.
@@ -102,9 +106,9 @@ save(Image, Filename) when is_list(Filename); is_binary(Filename); is_atom(Filen
     file:write_file(Filename, encode(Image)).
 
 decode_image(Binary) ->
-    case image_nif:decode_raw(Binary) of
+    case graphics_image_nif:decode_raw(Binary) of
         {ok, {Width, Height, Rgba}} ->
-            {ok, image_nif:image_from_rgba(Width, Height, Rgba)};
+            {ok, graphics_image_nif:image_from_rgba(Width, Height, Rgba)};
         {error, Reason} ->
             {error, Reason}
     end.

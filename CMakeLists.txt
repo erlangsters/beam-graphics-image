@@ -22,7 +22,7 @@ endif()
 set(ERTS_INCLUDE_DIR "${ERLANG_ERTS_DIR}/include")
 set(ERL_INTERFACE_INCLUDE_DIR "${ERL_INTERFACE_DIR}/include")
 
-add_library(beam-graphics-image SHARED c_src/image_nif.c)
+add_library(beam-graphics-image SHARED c_src/graphics_image_nif.c)
 set_target_properties(beam-graphics-image PROPERTIES
     OUTPUT_NAME "beam-graphics-image"
     PREFIX ""

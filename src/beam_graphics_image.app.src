@@ -10,10 +10,10 @@
     {env, []},
     {modules, [
         beam_graphics_image,
-        image_nif,
-        image_png,
-        image_jpeg,
-        image_bmp
+        graphics_image_nif,
+        graphics_image_png,
+        graphics_image_jpeg,
+        graphics_image_bmp
     ]},
     {licenses, ["MIT"]},
     {links, []}

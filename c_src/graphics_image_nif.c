@@ -387,7 +387,7 @@ static ErlNifFunc nif_functions[] = {
 };
 
 ERL_NIF_INIT(
-    image_nif,
+    graphics_image_nif,
     nif_functions,
     nif_load,
     NULL,

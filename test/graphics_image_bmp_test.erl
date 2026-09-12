@@ -7,7 +7,7 @@
 %%
 %% Written by Jonathan De Wachter <jonathan.dewachter@byteplug.io>
 %%
--module(image_bmp_test).
+-module(graphics_image_bmp_test).
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("beam_graphics/include/graphics.hrl").
 
@@ -17,49 +17,49 @@
 ]}).
 
 image_bmp_roundtrip_test() ->
-    Binary = image_bmp:encode(?IMAGE),
+    Binary = graphics_image_bmp:encode(?IMAGE),
     <<"BM", _/binary>> = Binary,
-    {ok, Decoded} = image_bmp:decode(Binary),
+    {ok, Decoded} = graphics_image_bmp:decode(Binary),
     true = image_equal(Decoded, ?IMAGE),
     ok.
 
 image_bmp_drops_alpha_test() ->
     Image = {1, 1, [?COLOR_TRANSPARENT]},
-    {ok, {1, 1, [Color]}} = image_bmp:decode(image_bmp:encode(Image)),
-    true = color:is_equal_to(Color, ?COLOR_BLACK),
+    {ok, {1, 1, [Color]}} = graphics_image_bmp:decode(graphics_image_bmp:encode(Image)),
+    true = graphics_color:is_equal_to(Color, ?COLOR_BLACK),
     ok.
 
 image_bmp_load_save_test() ->
     Path = tmp_path(".bmp"),
-    ok = image_bmp:save(?IMAGE, Path),
-    {ok, Decoded} = image_bmp:load(Path),
+    ok = graphics_image_bmp:save(?IMAGE, Path),
+    {ok, Decoded} = graphics_image_bmp:load(Path),
     true = image_equal(Decoded, ?IMAGE),
     ok = file:delete(Path),
     ok.
 
 image_bmp_unsupported_format_test() ->
-    {error, unsupported_format} = image_bmp:decode(<<"not a bmp">>),
-    Png = image_png:encode(?IMAGE),
-    {error, unsupported_format} = image_bmp:decode(Png),
+    {error, unsupported_format} = graphics_image_bmp:decode(<<"not a bmp">>),
+    Png = graphics_image_png:encode(?IMAGE),
+    {error, unsupported_format} = graphics_image_bmp:decode(Png),
     ok.
 
 image_bmp_decode_failed_test() ->
-    {error, decode_failed} = image_bmp:decode(<<"BM", 0, 1, 2>>),
+    {error, decode_failed} = graphics_image_bmp:decode(<<"BM", 0, 1, 2>>),
     ok.
 
 image_bmp_missing_file_test() ->
-    {error, enoent} = image_bmp:load("beam-graphics-image-missing-bmp-test.bmp"),
+    {error, enoent} = graphics_image_bmp:load("beam-graphics-image-missing-bmp-test.bmp"),
     ok.
 
 image_bmp_badarg_test() ->
-    ?assertError(function_clause, image_bmp:encode(not_an_image)),
-    ?assertError(function_clause, image_bmp:decode(not_a_binary)),
-    ?assertError(function_clause, image_bmp:load(123)),
+    ?assertError(function_clause, graphics_image_bmp:encode(not_an_image)),
+    ?assertError(function_clause, graphics_image_bmp:decode(not_a_binary)),
+    ?assertError(function_clause, graphics_image_bmp:load(123)),
     ok.
 
 image_equal({Width, Height, Left}, {Width, Height, Right}) ->
     lists:all(
-        fun({A, B}) -> color:is_equal_to(A, B) end,
+        fun({A, B}) -> graphics_color:is_equal_to(A, B) end,
         lists:zip(Left, Right)
     ).
 
